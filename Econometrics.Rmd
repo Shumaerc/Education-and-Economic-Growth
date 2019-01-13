@@ -1,0 +1,361 @@
+---
+title: 'Education and Economic Growth: Importance of Education Quality'
+author: "Shu Omi"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message = FALSE}
+library(here)
+library(tidyverse)
+library(haven)
+library(gridExtra)
+library(forcats)
+library(stargazer)
+library(ggpubr)
+```
+
+```{r, echo = FALSE}
+newdata <- read_dta("/Users/ShuLFO/Desktop/Data Analysis/Hanushek Data/hawo2012tabs.dta")
+
+newdata$avg_yos_pri <- as.numeric(newdata$avg_yos_pri)
+newdata$avg_yos_sec <- as.numeric(newdata$avg_yos_sec)
+newdata$avg_yos_ter <- as.numeric(newdata$avg_yos_ter)
+newdata$avg_yos_total <- as.numeric(newdata$avg_yos_total)
+newdata2 <- newdata %>% select(countrycode, country, reg, avg_growth, avg_percapita_growth, ypc60,avg_yos_pri,avg_yos_sec,avg_yos_ter,avg_yos_total,tmeanmsagay, open, exprop, tfr_avg, tropical, oecd)
+newdata2[42, 3:8] <- newdata2[53,3:8]
+subdata <- newdata2[-c(48, 53),]
+subdata$reg[6] <- "SSAFR"
+subdata$reg[35] <- "SSAFR"
+subdata$reg[42] <- "S-EUR"
+subdata$oecd <- as.factor(subdata$oecd)
+```
+
+### 1. Introduction
+Education is not only a fundamental human right but also a crucial determinant of economic development. The theoretical literature on economic growth recognises at least three ways that education can affect growth. Firstly, education can increase the human capital of the labour force, which leads to an increase in their productivity, hence a higher level of output (Mankiw et al, 1992). ^[Human capital refers to the knowledge, information, ideas, skills and health of individuals (Becker, 1992).] Secondly, education can enhance the innovative capacity of the economy by accumulating new knowledge on new technologies, products and processes, which promotes growth (Romer, 1990; Aghion and Howitt, 1998). Thirdly, education can facilitate the transmission of knowledge that is required to understand new technologies and to successfully implement them, which again spurs growth (Benhabib and Spiegel, 1994; Siggel and Ssemogerere, 2000; Siggel, 2001). 
+
+The growing body of theoretical literature on the effect of education on growth led to a worldwide quest to improve education. For instance, United Nations Educational, Scientific and Cultural Organisation (UNESCO) launched the Education for All initiative which includes objectives such as expanding early childhood care and education, and providing free and mandatory primary education for all (UNESCO, 2005). Furthermore, while Millennium Development Goals, developed by the United Nations (UN) in 2000, encompassed a broad range of global goals, its second most important priority was to achieve universal primary education, second only to eradicating extreme poverty (UN, 2000). 
+
+Despite these significant global efforts, the empirical evidence concerning the impact of education on economic growth has been mixed (Easterly, 2001; Pritchett, 2006). Part of the reason why many studies failed to find the expected impact of education on growth might be due to measurement problems. Since it is hard to precisely and quantitatively measure the impact of education, many often choose to use educational attainment (e.g. years of schooling) as a proxy (Mincer, 1974; Psacharopoulos, 1994; Card, 1999; Harmon et al, 2003; Heckman et al, 2006). However, the principal problem with the comparison of average years of education in cross-country analyses is that it implicitly assumes one year of education leads to the same increase in knowledge and skills regardless of the education system (Hanushek, 2009). For example, an average year of education in, say, Zimbabwe is assumed to produce the same gains in human capital as a year of education in South Korea or Singapore whose education systems are considered to be the best in the world. Moreover, another drawback with this measurement is that it assumes formal schooling is the only source of skills and human capital; it neglects possible impacts of non-school factors such as families, health and nutrition on educational outcomes. Against this backdrop, it was proposed by Hanushek and Kimko (2000) to use educational achievement (i.e. cognitive skills) as an alternative proxy for average educational performance of the labour force, instead of using educational attainment, in order to overcome these issues. The use of cognitive skills as an explanatory variable has the potential to significantly improve our capacity to predict economic growth. The advantages of the measurement will be further discussed in section three.
+
+The objective of this essay is to evaluate two hypotheses, namely;  
+1.education has a strong positive impact on economic growth, and   
+2.the quality of education (educational achievement) has greater effects on economic growth than the quantity of education (educational attainment).    
+
+The structure of this essay is as follows: initially, section two provides a brief review of existing literature on determinants of economic development. Section three then discusses the data and methodological aspects of this analysis. This is followed by section four which provides results of regression analyses. Finally, section five is a discussion of the results and limitations of the models, and some conclusions of the essay.  
+
+### 2. Literature Review
+
+As discussed above, much of the previous literature on the impact of education on growth tended to focus on years of schooling. Although some studies show mixed results, others find the rate of return to additional years of schooling can be significant. For example, some of the early studies with cross-country regression analyses find a positive relationship between schooling and economic growth (Barro, 1991, 1997; Mankiw et al, 1992). A relatively recent study by Psacharopoulos and Patrions (2004) shows that returns to additional years of schooling on average in 98 countries are more than 17 percent. 
+
+The literature on determinants of growth highlight importance of other factors as well, such as fertility, institutions and geography (Barro, 1997; Acemoglu et al, 2001, 2002; Rodrik et al, 2004; North, 1991; Easterly, 2001; Sachs, 2003; Diamond, 1997). Some of the growth literature emphasises the potential effects of demographic elements such as mortality and fertility on growth. It is often argued that a decline in fertility is associated with higher growth since lower fertility leads to a lower dependency ratio, hence higher savings which could spur investment, and to fewer high-risk births which could lead to healthier childhoods (Bulatao, 1998).   
+
+Another prominent theory on determinants of growth is the geography hypothesis, advocated by Sachs (2003) and Diamond (1997). It assumes that economic growth is ultimately determined by geographical characteristics. According to the theory, geography is the key element of economic development as it determines climate, endowment of natural resources, disease burden, transportation costs, and transmission of technology. It, therefore, exerts profound impact on factors such as agricultural productivity and the quality of human resources, hence on growth as well.   
+
+On the other hand, the institutions hypothesis, typically associated with Acemoglu et al (2001, 2002) and North (1991), suggests that economic growth is determined by the quality of institutions. Institutions refer to both informal and formal norms that constrain human behaviour, which is what North (1991) calls the “rules of the game” in a society. Institutions are crucial in many aspects of an economy, such as maintaining the rule of law, protecting property rights and operating appropriate macroeconomic policies, all of which can be critical for an economy to growth. 
+
+### 3. Data and Methodological Aspects  
+This analysis begins with a simple model of economic growth where a country’s growth rate (g) is a function of the human capital of workers (H) and other elements (X) such as institutions, technology and initial levels of income.  
+\begin{equation} 
+g= γH+ βX+ ε
+\end{equation}
+Since human capital (H) is a covert variable which cannot be observed directly, it is important to specify what it consists of. There are various factors that influence human capital, including family (F),  the quality of schooling (q) and quantity of schooling (S), individual ability (A), and other elements, such as health and experience (Z) (Hanushek and Woessmann, 2012). 
+\begin{equation}
+H= λF+ ∅(qS)+ ηA+ αZ+v
+\end{equation}  
+Despite the fact, most literature on the effect of human capital on economic growth tends to take the quantity of schooling (S) as the sole proxy for human capital (H). To overcome this issue, it is suggested by Hanushek and Kimko (2000) to measure H with cognitive skills derived from test score measures of mathematics, science and reading achievements. The key advantage of this measurement is that it encompasses overall cognitive skills. That means, regardless of whether skills are developed from schooling (S), families (F), abilities (A) or other factorselse, they can be included in the growth analyses. 
+
+#### 3.1. Data Sets
+In this essay, the simple growth model is estimated for the 51 countries with available data for cognitive skills and economic data such as the GDP per capita and annual growth rate over the period of 1960 to 2000. While it would be ideal to obtain data for the cognitive skills of workers in the whole labour force, such data is hardly available in most countries. This analysis, thus, takes the same approach as Hanushek and Woessmann (2012), who take each nation’s average scores on international tests of mathematics and science skills, taken by their students during 1964 and 2003 and representing the average cognitive skills of the work force. These tests include twelve different international tests such as the First International Science Study and the Programme for International Student Assessment.^[See Hanushek and Woessmann (2012) for the list of all international tests included in the analysis.] 
+
+As for other variables, the data for real GDP per capita growth rate of each country was obtained from the World Bank’s World Development Index (2018). The data for school attainment was provided by the latest Barro and Lee (2013) database. Additionally, several variables as proxies for fertility, economic institutions, and geography are added. For geography, a variable for tropical climate from Sachs and Warner (1997) Index is added.^[Tropical climate is measured by a variable which takes the value 1 for a country in which the entire land area is subject to tropical climate, and 0 for a country with no land area subject to tropical climate. For countries in between these two extremes, a fraction representing the approximate proportion of land area subject to a tropical climate is assigned (Sachs and Warner, 1997).]  For institutions, openness of the economy and security of property rights from Sachs and Warner (1997) index and from Acemoglu et al (2001) dataset respectively are used.^[Openness of a country reflects the fraction of years between 1960 and 1998 that the country was classified as having their economy open to international trade based on five factors, namely; tariffs, quotas, exchange rate controls, export controls, and whether or not a socialist economy (Sachs and Warner, 1997).] ^[For security of property rights, Acemoglu et al (2001) used data from Political Risk Services, a private company which evaluates the risk that investments will be expropriated in various countries. The company reports a value between 0 and 10 for each country and year, with 0 being the lowest protection against expropriation. In this analysis, the average value for each country between 1985 and 1995 is used.]  
+
+#### 3.2. Descriptive Analysis
+Before moving on to econometric analyses, this section provides some results of descriptive analyses. Table 1 displays summary statistics for each variable. The average GDP per capita growth between 1960 and 2000 for each country is displayed in Figure 1. South Korea, Botswana and China are the countries with the highest average growth rate, whereas Ghana, Zimbabwe and Nigeria had the lowest growth rate during the period. Figure 2 shows the relationship between the initial level of GDP per capita in 1960 and the average growth rate between 1960 and 2000. It seems to show a pattern of economic convergence, that is, the higher the initial GDP per capita, the lower the subsequent growth rate. This implies that it might be critical to control for the initial level of income to obtain an accurate predictor of growth rate. Figure 3 displays two graphs comparing years of schooling and cognitive skills against growth rates. It shows that there is virtually no association between years of schooling and growth rate, while there seems a strong positive correlation between cognitive skills and growth rates.
+![](/Users/ShuLFO/Desktop/Screenshot 2019-01-12 at 18.28.47.png)
+```{r, eval = FALSE}
+ggplot(subdata, aes(reorder(country, avg_percapita_growth), avg_percapita_growth)) +
+        geom_point(col = "red", size = 3) +
+        geom_segment(aes(x = country,
+                         xend = country,
+                         y = min(avg_percapita_growth),
+                         yend = max(avg_percapita_growth)),
+                     linetype = "dashed",
+                     size = .1) +
+        labs(y = "Average per capita growth (%)",
+             x = "Country") +
+        coord_flip() +
+        theme_classic(base_family = "Times New Roman", base_size = 13)
+```
+![Figure 1: Growth by Country](/Users/ShuLFO/Desktop/R/Econometrics Essay/Rplot01.png)
+```{r, warning=FALSE}
+ggplot(subdata, aes(ypc60, avg_percapita_growth)) +
+        geom_label(label = subdata$countrycode) +
+        geom_smooth(method = "lm", se = F) +
+        labs(x = "Log GDP Per Capita in 1960",
+             y = "Average GDP Per Capita Growth (%)") + 
+        theme_classic(base_family = "Times New Roman")
+```
+Figure 2: Initial level of income and subsequent growth
+```{r, warning=FALSE}
+plot1 <-ggplot(subdata, aes(avg_yos_total, avg_percapita_growth)) +
+        geom_label(label = subdata$countrycode) +
+        geom_smooth(method = "lm", se = FALSE) +
+        labs(title = "Average GDP Per Capita Growth and Average Years of Total Schooling",
+             x = "Average Years of Total Schooling",
+             y = "Average GDP Per Capita Growth (%)") +
+        theme_classic(base_family = "Times New Roman")
+
+plot2 <-ggplot(subdata, aes(tmeanmsagay, avg_percapita_growth)) +
+        geom_label(label = subdata$countrycode) +
+        geom_smooth(method = "lm", se = F) +
+        labs(title = "Average GDP Per Capita Growth and Test Score",
+             x = "Test Score",
+             y = "Average GDP Per Capita Growth (%)") +
+        theme_classic(base_family = "Times New Roman")
+
+grid.arrange(plot1, plot2)
+```
+Figure 3: Years of schooling versus Cognitive skills
+
+### 4. Regression Analysis
+In order to investigate further what determines economic growth, simple linear regression analyses were carried out. Table 2 shows five different models. To begin with, the column 1 is a model with average years of total schooling as the sole explanatory variable. It shows a negative coefficient for the variable, but it would be unrealistic to think additional years of schooling leads to lower growth rate. As the column 2 shows, the coefficient for the years of schooling becomes positive, and it becomes statistically significant at 95 percent confidence level after controlling for the initial level of GDP per capita. The result shows that additional year of schooling is associated with 0.3 percent increase in GDP per capita growth rate.  
+
+```{r}
+m1 <- lm(avg_percapita_growth ~ avg_yos_total, data = subdata)
+
+m2 <- lm(avg_percapita_growth ~ avg_yos_total + ypc60, data = subdata)
+
+m3 <- lm(avg_percapita_growth ~ avg_yos_total + ypc60 + tmeanmsagay, data = subdata)
+
+m4 <- lm(avg_percapita_growth ~ avg_yos_total + ypc60 + tmeanmsagay + open + exprop, data = subdata)
+
+m5 <- lm(avg_percapita_growth ~ avg_yos_total + ypc60 + tmeanmsagay + open + exprop + tfr_avg + tropical, data = subdata)
+
+## Regression table output
+stargazer(m1, m2, m3, m4, m5,
+          dep.var.labels = "Average Annual GDP Per Capita Growth Rate, 1960-2000",
+          covariate.labels = c("Average years of total schooling",
+                               "GDP per capita in 1960",
+                               "Cognitive skills",
+                               "Openness",
+                               "Property rights",
+                               "Fertility",
+                               "Tropical location"),
+          type = "text",
+          align = TRUE,
+          omit.stat = c("n", "ser", "f"),
+          out = "model_ver1.html")
+
+```
+
+The primary finding of this analysis, however, is that years of schooling becomes insignificant with a much lower effect size once the variable for cognitive skills is included (column 3). The model 3 suggests the cognitive skills is statistically significant at 99 percent confidence level, and one standard deviation increase in cognitive skills is associated with 2.1 percent increase in the average annual per capita GDP growth rate. While the model 2 explains only 18 percent of the variance in growth rates, the model 3 with the cognitive skills can explain 69 percent of the variance. 
+
+In order to test the institution hypothesis, openness and property rights are added to the equation (column 4). The result shows that while openness is not statistically significant, security of property rights is at 10 percent significance level. One unit increase in protection of property rights is associated with 0.4 percent increase in growth rates. Finally, the column 5 shows a model with all variables including fertility and tropical location. After introducing the new variables, protection for property rights is no longer statistically significant. Analogously, fertility is not significant, but tropical location seems to have a strong negative effect on growth. 
+
+Overall, the cognitive skills remain strongly significant even after controlling for all variables. Although its effect size decreased, one standard deviation increase in the cognitive skills of the labour force is associated with 1.4 percent increase in the average annual per capita GDP growth rate, which is also economically significant. On the contrary, the size of the effect years of schooling have on growth is negligible. 
+
+### 5. Disussion
+The recent efforts towards education from international organisations seem to place a focus on the quantity of education (i.e. school attainment) as seen in the Education for All initiative.  Even the Sustainable Development Goals, which was developed by the UN relatively recently, includes achieving universal primary and secondary education by 2030 as its fourth goal (UN, 2015). The findings of this essay show that, overall, education has a positive impact on economic growth. What is more interesting, however, is that it also shows the quality of education matters more than the quantity of education for growth. Does this mean the primary focus of the development organisations should be school achievement rather than school attainment since additional years of schooling that is not accompanied by increased cognitive skills have little value for growth?
+
+Before answering such an important question, it is also critical to address some of the limitations of this analysis first. One of the most common criticisms is about the model’s reliance on an assumption that average test scores at ages 9-15 provide an accurate measure of the whole labour force’s human capital. The problem is that this assumption might not hold true since it ignores a large proportion of schooling that occurs after age 15 (Breton, 2011). While this is true, education at earlier points in life can significantly influence the amount of return from further schooling (Cunha and Heckman, 2007). As Cunha et al (2006) argue, skill produces skill through multiplier process; how much human capital one gains from further schooling might be dependent on the basic skills she obtains from her earlier schooling. Therefore, the measurement might not be able to capture human capital from entire schooling, but it can be a reliable indicator of the labour force’s average human capital.
+
+A more general concern for this kind of econometric analysis is that it cannot effectively provide precise estimates of the causal impact of its included determinants of growth, hence cannot provide any tangible policy advice (Glewwe et al, 2014). In order for the findings to be useful for policy makers, it is crucial to understand whether the estimated relationship is causal or a sheer association reflecting omitted variables, reverse causation, cultural differences, and so forth. Whilst it would be ideal to test every hypothesis about other potential reasons for the association between education or the cognitive skills and economic growth to be more certain, that is impractical because there is only a limited number of sample countries, and each of them has its own unique political, cultural and economic institutions (Hanushek and Woessmann, 2012). 
+
+While these criticisms are true, an increasing number of studies on the effect of education and the effect of cognitive skills on growth found relationships which provide rather strong empirical support for the hypothesis that education has a substantial causal effect on economic growth, and that the quality of education plays a critical role in growth (Pritchett, 2006; Hanushek and Kimko, 2000; Hanushek and Woessmann, 2008; Ciccone and Papaioannou, 2009; Barro, 2001; Woessmann, 2002, 2003; Jamison et al, 2007). Although these empirical growth literatures cannot offer precise estimates of education’s effect on growth, and one cannot entirely dismiss the probability that, due to econometric problems, the results might be biased towards finding a causal relationship when it really is not, the weight of evidence from these studies is in strong favour of the existence of causal effects of education and its quality on growth (Glewwe et al, 2014). Surely, more evidence from new research will be helpful for policy makers, but it is not reasonable to wait another decade for it considering the rapid population growth of children in the developing world, who can be a vital driver of economic growth if received quality education. 
+
+Looking at the result from the previous analysis and other literature, one of the main implications might be that more attention is needed to the quality of education rather than the quantity. That is, of course, not to say that the quantity does not matter, as some evidence shows the school attainment’s importance (Breton, 2011). The point I am making here, however, is that the quality of education should get as much attention as the quantity which is often the main focus of the international development community (Nielsen, 2006). In fact, it has been reported that while school attainment improved significantly in many developing countries, children learn little from attending school (Bold et al, 2018). In Uganda, for example, almost half of the students cannot order numbers between 0 and 100 even after three years of mathematics teaching (ibid.). Enrolment without learning is a very prevalent issue in many developing countries, and economic implications of such a problem can be severe. The way forward from here, therefore, may be to think of how to improve the quality of education. Low education quality stems from many issues, but one of the major identified factors that affects student learning, for example, is teacher quality (Bold et al, 2017). However, the problem is that there is relatively scarce evidence concerning how to actually improve teacher quality. Hence, filling this knowledge gap should be a priority for future research as it could be significantly beneficial for policy makers and development organisations. 
+
+### Appendix
+
+```{r, warning=FALSE, eval = FALSE}
+OpennessvsGrowth <- ggplot(subdata, aes(open, avg_percapita_growth)) +
+        geom_point() +
+        geom_smooth(method = "lm", se = F) +
+        labs(x = "Openness",
+             y = "") +
+        theme_classic(base_family = "Times New Roman")
+
+PropvsGrowth <- ggplot(subdata, aes(exprop, avg_percapita_growth)) +
+        geom_point() +
+        geom_smooth(method = "lm", se = F) +
+        labs(x = "Security of Property Rights",
+             y = "") +
+        theme_classic(base_family = "Times New Roman")
+
+FertvsGrowth <- ggplot(subdata, aes(tfr_avg, avg_percapita_growth)) +
+        geom_point() +
+        geom_smooth(method = "lm", se = F) +
+        labs(x = "Fertility rate",
+             y = "") +
+        theme_classic(base_family = "Times New Roman")
+
+TropvsGrowth <- ggplot(subdata, aes(tropical, avg_percapita_growth)) +
+        geom_point() +
+        geom_smooth(method = "lm", se = F) +
+        labs(x = "Tropical location",
+             y = "") +
+        theme_classic(base_family = "Times New Roman")
+
+YOSvsGrowth <- ggplot(subdata, aes(avg_yos_total, avg_percapita_growth)) +
+        geom_point() +
+        geom_smooth(method = "lm", se = F) +
+        labs(x = "Years of schooling",
+             y = "") +
+        theme_classic(base_family = "Times New Roman")
+
+Test_Growth <- ggplot(subdata, aes(tmeanmsagay, avg_percapita_growth)) +
+        geom_point() +
+        geom_smooth(method = "lm", se = F) +
+        labs(x = "Test Score",
+             y = "") +
+        theme_classic(base_family = "Times New Roman")
+
+grid.arrange(YOSvsGrowth, 
+             Test_Growth, 
+             OpennessvsGrowth, 
+             PropvsGrowth,
+             FertvsGrowth, 
+             TropvsGrowth,
+             left = "Average annual GDP per capita growth rate",
+             ncol = 1)
+
+```
+![Figure 4: Growth and explanatory variables](/Users/ShuLFO/Desktop/R/Econometrics Essay/Rplot05.png)
+
+```{r, warning = FALSE}
+box1 <- ggboxplot(subdata, x = "reg", y = "avg_yos_total",
+          add = "jitter", shape = "reg") +
+        labs(x = "",
+             y = "Average years of schooling") +
+        theme_classic(base_family = "Times New Roman")
+
+box1_1 <- ggpar(box1, legend = "none")
+
+
+box2 <- ggboxplot(subdata, x = "reg", y = "avg_percapita_growth",
+                  add = "jitter", shape = "reg") +
+        labs(x = "",
+             y = "Average GDP per capita growth") +
+        theme_classic(base_family = "Times New Roman")
+
+box2_1 <- ggpar(box2, legend = "none")
+
+box3 <- ggboxplot(subdata, x = "reg", y = "tmeanmsagay",
+                  add = "jitter", shape = "reg") +
+        labs(x = "Regions",
+             y = "Test Score") +
+        theme_classic(base_family = "Times New Roman")
+
+box3_1 <- ggpar(box3, legend = "none")
+
+grid.arrange(box2_1,box1_1 ,box3_1)
+```
+Figure 5: Growth, years of scholling and test score by region
+
+
+
+
+### Data Sources
+Acemoglu, D., Johnson, S. and Robinson, J.A., 2001. The colonial origins of comparative development: An empirical investigation. American economic review, 91(5), pp.1369-1401.
+
+Barro, R.J. and Lee, J.W., 2013. A new data set of educational attainment in the world, 1950–2010. Journal of development economics, 104, pp.184-198.
+
+Hanushek, E.A. and Woessmann, L., 2012. Do better schools lead to more growth? Cognitive skills, economic outcomes, and causation. Journal of economic growth, 17(4), pp.267-321.
+
+Sachs, J.D. and Warner, A.M., 1997. Fundamental sources of long-run growth. The American economic review, 87(2), pp.184-188.
+
+World Bank, 2018. World Development Indicators. Washington, D.C.: World Bank.
+
+### Bibliography
+
+Acemoglu, D., Johnson, S. and Robinson, J.A., 2001. The colonial origins of comparative development: An empirical investigation. American economic review, 91(5), pp.1369-1401.
+
+Acemoglu, D., Johnson, S. and Robinson, J.A., 2002. Reversal of fortune: Geography and institutions in the making of the modern world income distribution. The Quarterly journal of economics, 117(4), pp.1231-1294.
+
+Aghion, P. and Howitt, P., 1998. Endogenous growth theory. Cambridge, MA: MIT press.
+
+Barro, R.J., 1991. Economic growth in a cross section of countries. The quarterly journal of economics, 106(2), pp.407-443.
+
+Barro, R.J., 1997. Determinants of economic growth: a cross-country empirical study. Cambridge, MA: MIT Press.
+
+Barro, R.J., 2001. Human capital and growth. American economic review, 91(2), pp.12-17.
+
+Becker, G., 1992. Human Capital and the Economy. Proceedings of the American Philosophical Society, 136(1), pp.85-92.
+
+Benhabib, J. and Spiegel, M.M., 1994. The role of human capital in economic development evidence from aggregate cross-country data. Journal of Monetary economics, 34(2), pp.143-173.
+
+Bold, T., Filmer, D., Martin, G., Molina, E., Stacy, B., Rockmore, C., Svensson, J. and Wane, W., 2017. Enrollment without Learning: Teacher Effort, Knowledge, and Skill in Primary Schools in Africa. Journal of Economic Perspectives, 31(4), pp.185-204.
+
+Bold, T., Filmer, D., Molina, E. and Svensson, J., 2018. The Lost Human Capital: Teacher Knowledge and Student Achievement in Africa. [Online]. Available at: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3190176. [accessed 12 January 2019]
+
+Breton, T.R., 2011. The quality vs. the quantity of schooling: What drives economic growth?. Economics of Education Review, 30(4), pp.765-773.
+
+Bulatao, R.A., 1998. The value of family planning programs in developing countries. Washington, D.C.: RAND.
+
+Card, D., 1999. The causal effect of education on earnings. In O. Ashenfelter, and D. Card, eds. Handbook of labor economics. Amsterdam: North-Holland,  pp.1801-1863.
+
+Ciccone, A. and Papaioannou, E., 2009. Human capital, the structure of production, and growth. The Review of Economics and Statistics, 91(1), pp.66-82.
+
+Cunha, F., Heckman, J.J., Lochner, L. and Masterov, D.V., 2006. Interpreting the evidence on life cycle skill formation. Handbook of the Economics of Education, 1, pp.697-812.
+
+Cunha, F. and Heckman, J., 2007. The technology of skill formation. American Economic Review, 97(2), pp.31-47.
+
+Diamond, J.M., 1997. Guns, germs and steel: a short history of everybody for the last 13,000 years. New York: Random House.
+
+Easterly, W., 2001. The elusive quest for growth: economists' adventures and misadventures in the tropics. Cambridge, MA: MIT press.
+
+Glewwe, P., Maiga, E. and Zheng, H., 2014. The contribution of education to economic growth: A review of the evidence, with special attention and an application to Sub-Saharan Africa. World Development, 59, pp.379-393.
+
+Hanushek, E.A., 2009. School policy: implications of recent research for human capital investments in South Asia and other developing countries. Education Economics, 17(3), pp.291-313.
+
+Hanushek, E.A. and Kimko, D.D., 2000. Schooling, labor-force quality, and the growth of nations. American economic review, 90(5), pp.1184-1208.
+
+Hanushek, E.A. and Woessmann, L., 2008. The role of cognitive skills in economic development. Journal of economic literature, 46(3), pp.607-68.
+
+Hanushek, E.A. and Woessmann, L., 2012. Do better schools lead to more growth? Cognitive skills, economic outcomes, and causation. Journal of economic growth, 17(4), pp.267-321.
+
+Harmon, C., Oosterbeek, H. and Walker, I., 2003. The returns to education: Microeconomics. Journal of economic surveys, 17(2), pp.115-156.
+
+Heckman, J.J., Lochner, L.J. and Todd, P.E., 2006. Earnings functions, rates of return and treatment effects: The Mincer equation and beyond. Handbook of the Economics of Education, 1, pp.307-458.
+
+Jamison, E.A., Jamison, D.T. and Hanushek, E.A., 2007. The effects of education quality on mortality decline and income growth. Economics of Education Review, 26(6), pp.772-789.
+
+Mankiw, N.G., Romer, D. and Weil, D.N., 1992. A contribution to the empirics of economic growth. The quarterly journal of economics, 107(2), pp.407-437.
+
+Mincer, J.A., 1974. Schooling, experience, and earnings. Cambridge, MA: National Bureau of Economics Research.
+
+Nielsen, H.D., 2006. From Schooling Access to Learning Outcomes: An Unfinished Agenda: An Evaluation of World Bank Support to Primary Education. Washington, D.C.: World Bank.
+
+North, D.C., 1991. Institutions. Journal of economic perspectives, 5(1), pp.97-112.
+
+Pritchett, L., 2006. Does learning to add up add up? The returns to schooling in aggregate data. Handbook of the Economics of Education, 1, pp.635-695.
+
+Psacharopoulos, G., 1994. Returns to investment in education: A global update. World development, 22(9), pp.1325-1343.
+
+Psacharopoulos, G. and Patrinos, H.A., 2004. Returns to investment in education: a further update. Education economics, 12(2), pp.111-134.
+
+Rodrik, D., Subramanian, A. and Trebbi, F., 2004. Institutions rule: the primacy of institutions over geography and integration in economic development. Journal of economic growth, 9(2), pp.131-165.
+
+Romer, P.M., 1990. Endogenous technological change. Journal of political Economy, 98(5, Part 2), pp.S71-S102.
+
+Sachs, J.D., 2003. Institutions don't rule: direct effects of geography on per capita income (No. w9490). Cambridge, MA: National Bureau of Economic Research.
+
+Siggel, E. and Ssemogerere, C.G., 2000. Uganda’s Policy Reforms, Industry Competitiveness and Regional Integration: A comparison with Kenya. Journal of International Trade and Economic Development, 13(3), pp.325-357.
+
+Siggel, E., 2001. India's trade policy reforms and industry competitiveness in the 1980s. World economy, 24(2), pp.159-183.
+
+United Nations., 2000. United Nations Millennium Declaration. [Online]. Available at: http://www.un.org/millennium/declaration/ares552e.pdf. [accessed 12 January 2019]
+
+United Nations., 2015. Transforming our world: The 2030 agenda for sustainable development. New York: United Nations.
+
+United Nations Educational, Scientific and Cultural Organization., 2005. Education for all: The quality imperative, EFA Global Monitoring Report. Paris: United Nations Educational, Scientific and Cultural Organization.
+
+Woessmann, L., 2002. Schooling and the quality of human capital. Berlin: Springer.
+
+Woessmann, L., 2003. Specifying human capital. Journal of economic surveys, 17(3), pp.239-270.
